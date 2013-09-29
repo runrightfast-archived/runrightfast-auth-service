@@ -17,12 +17,27 @@
 'use strict';
 var expect = require('chai').expect;
 
-var hawk = require('../lib').hawk;
+var hawk = require('..').hawk;
 
 describe('hawk', function() {
 
-	it.skip('can generate new Hawk credentials', function() {
+	it('can generate new Hawk credentials', function() {
+		var credentials = new hawk.HawkCredentials();
+		console.log(credentials);
+		expect(credentials.id).to.exist;
+		expect(credentials.key).to.exist;
+		expect(credentials.algorithm).to.exist;
+		expect(credentials.id).to.not.equal(credentials.key);
+	});
 
+	it('can generate new unique Hawk credentials', function() {
+		var credentialsSet = {};
+		for ( var i = 0; i < 10000; i++) {
+			var credentials = new hawk.HawkCredentials();
+			expect(credentials.id).to.not.equal(credentials.key);
+			expect(credentialsSet[credentials.id]).to.not.exist;
+			credentialsSet[credentials.id] = credentials;
+		}
 	});
 
 });

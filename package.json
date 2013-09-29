@@ -23,7 +23,8 @@
 		"rest":"1.0.x",
 		"log4js":"0.6.x",
 		"hawk":"1.1.x",
-		"extend":"1.2.x"
+		"extend":"1.2.x",
+		"uuid":"1.4.x"
 	},
 	"devDependencies":{
 		"grunt":"~0.4.1",
