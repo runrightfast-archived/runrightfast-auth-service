@@ -17,8 +17,8 @@
 'use strict';
 var expect = require('chai').expect;
 
-describe('HawkCredentialsDatabase', function() {
-	var hawkCredentialsDatabase = null;
+describe('HawkAuthService', function() {
+	var hawkAuthService = null;
 
 	var idsToDelete = [];
 
@@ -39,25 +39,19 @@ describe('HawkCredentialsDatabase', function() {
 			},
 			logLevel : 'DEBUG'
 		};
-		hawkCredentialsDatabase = require('..').hawkCredentialsDatabase(options);
-		hawkCredentialsDatabase.start();
+		hawkAuthService = require('..').hawkAuthService(options);
+		hawkAuthService.start();
 	});
 
 	after(function(done) {
-		hawkCredentialsDatabase.on('STOPPED', function() {
-			console.log('Couchbase connection has been shutdown.');
-			done();
-		});
-
-		hawkCredentialsDatabase.deleteMultiCredentials(idsToDelete, function(error, result) {
+		hawkAuthService.deleteMultiCredentials(idsToDelete, function(error, result) {
 			console.log("after() : deleteMultiCredentials : error [%s], result [%s]", error, result);
-			console.log("deleted ids : %s", Object.keys(result));
-			hawkCredentialsDatabase.stop();
+			hawkAuthService.stop(done);
 		});
 	});
 
 	it('can create new HawkCredentials that are persisted in the database', function(done) {
-		hawkCredentialsDatabase.createCredentials(function(error, credentials) {
+		hawkAuthService.createCredentials(function(error, credentials) {
 			try {
 				if (error) {
 					done(error);
@@ -65,7 +59,7 @@ describe('HawkCredentialsDatabase', function() {
 					console.log("new credentials : %s", JSON.stringify(credentials));
 					idsToDelete.push(credentials.id);
 
-					hawkCredentialsDatabase.getCredentials(credentials.id, function(error, credentials2) {
+					hawkAuthService.getCredentials(credentials.id, function(error, credentials2) {
 						if (error) {
 							done(error);
 						} else {
@@ -87,7 +81,7 @@ describe('HawkCredentialsDatabase', function() {
 	it('can create multiple new HawkCredentials that are persisted in the database', function(done) {
 		var counter = 0;
 		for ( var i = 0; i < 10; i++) {
-			hawkCredentialsDatabase.createCredentials(function(error, credentials) {
+			hawkAuthService.createCredentials(function(error, credentials) {
 				var ii = i;
 				try {
 					if (error) {
@@ -96,7 +90,7 @@ describe('HawkCredentialsDatabase', function() {
 						console.log("new credentials #d : %s", ii, JSON.stringify(credentials));
 						idsToDelete.push(credentials.id);
 
-						hawkCredentialsDatabase.getCredentials(credentials.id, function(error, credentials2) {
+						hawkAuthService.getCredentials(credentials.id, function(error, credentials2) {
 							if (error) {
 								done(error);
 							}
@@ -118,17 +112,17 @@ describe('HawkCredentialsDatabase', function() {
 	});
 
 	it('can delete HawkCredentials', function(done) {
-		hawkCredentialsDatabase.createCredentials(function(error, credentials) {
+		hawkAuthService.createCredentials(function(error, credentials) {
 			try {
 				if (error) {
 					done(error);
 				} else {
 					console.log('deleting %s ...', credentials.id);
-					hawkCredentialsDatabase.deleteCredentials(credentials.id, function(error, result) {
+					hawkAuthService.deleteCredentials(credentials.id, function(error, result) {
 						if (error) {
 							done(error);
 						} else {
-							console.log("deleted : %s", JSON.stringify(result));							
+							console.log("deleted : %s", JSON.stringify(result));
 							done();
 						}
 					});
@@ -141,7 +135,7 @@ describe('HawkCredentialsDatabase', function() {
 	});
 
 	it("return undefined if credentials could not be found", function(done) {
-		hawkCredentialsDatabase.getCredentials("fsdfsdf", function(error, credentials) {
+		hawkAuthService.getCredentials("fsdfsdf", function(error, credentials) {
 			if (error) {
 				done(error);
 			}

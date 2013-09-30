@@ -1,6 +1,6 @@
 {
 	"name":"runrightfast-auth-service",
-	"version":"0.0.2",
+	"version":"0.0.3",
 	"description":"RunRightFast Auth Service",
 	"repository":{
 		"type":"git",
@@ -10,7 +10,9 @@
 	"scripts":{
 		"blanket":{
 			"pattern":[
-				"lib/hawk.js"
+				"lib/hawk.js",
+				"lib/hawk-credentials-database.js",
+				"lib/hawk-auth-service.js"
 			]
 		}		
 	},
