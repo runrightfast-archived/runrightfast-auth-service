@@ -16,6 +16,8 @@
 
 'use strict';
 var expect = require('chai').expect;
+var cbConnManager = require('runrightfast-couchbase').couchbaseConnectionManager;
+var HawkCredentialsDatabase = require('..').HawkCredentialsDatabase;
 
 describe('HawkCredentialsDatabase', function() {
 	var hawkCredentialsDatabase = null;
@@ -23,36 +25,39 @@ describe('HawkCredentialsDatabase', function() {
 	var idsToDelete = [];
 
 	before(function(done) {
+
 		var options = {
 			couchbase : {
 				"host" : [ "localhost:8091" ],
-				"bucket" : "default"
+				buckets : [ {
+					"bucket" : "default"
+				} ]
 			},
-			connectionListener : function(logger) {
-				console.log('CONNECTED TO COUCHBASE');
-				expect(logger).to.exist;
+			logLevel : 'DEBUG',
+			startCallback : function(result) {
+				console.log('before::startCallback');
+				console.log(result);
+
+				hawkCredentialsDatabase = new HawkCredentialsDatabase({
+					couchbaseConn : cbConnManager.getBucketConnection('default')
+				});
+
 				done();
-			},
-			connectionErrorListener : function(error) {
-				console.error(error);
-				done(error);
-			},
-			logLevel : 'DEBUG'
+			}
 		};
-		hawkCredentialsDatabase = require('..').hawkCredentialsDatabase(options);
-		hawkCredentialsDatabase.start();
+
+		cbConnManager.registerConnection(options);
+
 	});
 
 	after(function(done) {
-		hawkCredentialsDatabase.on('STOPPED', function() {
-			console.log('Couchbase connection has been shutdown.');
-			done();
-		});
-
 		hawkCredentialsDatabase.deleteMultiCredentials(idsToDelete, function(error, result) {
 			console.log("after() : deleteMultiCredentials : error [%s], result [%s]", error, result);
 			console.log("deleted ids : %s", Object.keys(result));
-			hawkCredentialsDatabase.stop();
+			cbConnManager.stop(function() {
+				cbConnManager.clear();
+				done();
+			});
 		});
 	});
 
@@ -128,7 +133,7 @@ describe('HawkCredentialsDatabase', function() {
 						if (error) {
 							done(error);
 						} else {
-							console.log("deleted : %s", JSON.stringify(result));							
+							console.log("deleted : %s", JSON.stringify(result));
 							done();
 						}
 					});

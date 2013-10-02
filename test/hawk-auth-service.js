@@ -16,6 +16,8 @@
 
 'use strict';
 var expect = require('chai').expect;
+var cbConnManager = require('runrightfast-couchbase').couchbaseConnectionManager;
+var HawkAuthService = require('..').HawkAuthService;
 
 describe('HawkAuthService', function() {
 	var hawkAuthService = null;
@@ -26,27 +28,33 @@ describe('HawkAuthService', function() {
 		var options = {
 			couchbase : {
 				"host" : [ "localhost:8091" ],
-				"bucket" : "default"
+				buckets : [ {
+					"bucket" : "default"
+				} ]
 			},
-			connectionListener : function(logger) {
-				console.log('CONNECTED TO COUCHBASE');
-				expect(logger).to.exist;
+			logLevel : 'DEBUG',
+			startCallback : function(result) {
+				console.log('before::startCallback');
+				console.log(result);
+
+				hawkAuthService = new HawkAuthService({
+					couchbaseConn : cbConnManager.getBucketConnection('default')
+				});
+
 				done();
-			},
-			connectionErrorListener : function(error) {
-				console.error(error);
-				done(error);
-			},
-			logLevel : 'DEBUG'
+			}
 		};
-		hawkAuthService = require('..').hawkAuthService(options);
-		hawkAuthService.start();
+
+		cbConnManager.registerConnection(options);
 	});
 
 	after(function(done) {
 		hawkAuthService.deleteMultiCredentials(idsToDelete, function(error, result) {
 			console.log("after() : deleteMultiCredentials : error [%s], result [%s]", error, result);
-			hawkAuthService.stop(done);
+			cbConnManager.stop(function() {
+				cbConnManager.clear();
+				done();
+			});
 		});
 	});
 
