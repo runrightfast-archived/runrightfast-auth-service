@@ -1,6 +1,6 @@
 {
 	"name":"runrightfast-auth-service",
-	"version":"0.0.8",
+	"version":"0.0.9",
 	"description":"RunRightFast Auth Service",
 	"repository":{
 		"type":"git",
@@ -21,13 +21,12 @@
 	"dependencies":{
 		"lodash":"2.2.x",
 		"hoek":"1.1.x",
-		"runrightfast-commons":"git://github.com/runrightfast/runrightfast-commons.git#0.0.12",
-		"runrightfast-couchbase":"git://github.com/runrightfast/runrightfast-couchbase.git#0.0.5",
+		"runrightfast-commons":"git://github.com/runrightfast/runrightfast-commons.git#0.0.16",
+		"runrightfast-couchbase":"git://github.com/runrightfast/runrightfast-couchbase.git#0.0.8",
 		"rest":"1.0.x",
 		"log4js":"0.6.x",
 		"hawk":"1.1.x",
 		"extend":"1.2.x",
-		"uuid":"1.4.x",
 		"couchbase":"1.0.x"
 	},
 	"devDependencies":{

@@ -42,6 +42,10 @@ describe('HawkAuthService', function() {
 				});
 
 				done();
+			},
+			connectionErrorListener : function(err) {
+				console.error('connectionErrorListener(): ' + err);
+				done(err);
 			}
 		};
 
