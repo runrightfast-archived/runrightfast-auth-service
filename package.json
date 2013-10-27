@@ -1,6 +1,6 @@
 {
 	"name":"runrightfast-auth-service",
-	"version":"0.0.9",
+	"version":"0.0.10",
 	"description":"RunRightFast Auth Service",
 	"repository":{
 		"type":"git",
@@ -11,8 +11,8 @@
 		"blanket":{
 			"pattern":[
 				"lib/hawk.js",
-				"lib/hawk-credentials-database.js",
-				"lib/hawk-auth-service.js"
+				"lib/hawk-credentials-database.jsXXX",
+				"lib/hawk-auth-service.jsXXX"
 			]
 		}		
 	},
@@ -22,12 +22,12 @@
 		"lodash":"2.2.x",
 		"hoek":"1.1.x",
 		"runrightfast-commons":"git://github.com/runrightfast/runrightfast-commons.git#0.0.16",
-		"runrightfast-couchbase":"git://github.com/runrightfast/runrightfast-couchbase.git#0.0.8",
+		"runrightfast-elasticsearch":"git://github.com/runrightfast/runrightfast-elasticsearch.git#0.0.2",
 		"rest":"1.0.x",
 		"log4js":"0.6.x",
 		"hawk":"1.1.x",
 		"extend":"1.2.x",
-		"couchbase":"1.0.x"
+		"joi":"1.2.x"
 	},
 	"devDependencies":{
 		"grunt":"~0.4.1",

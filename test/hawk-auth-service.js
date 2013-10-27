@@ -16,50 +16,32 @@
 
 'use strict';
 var expect = require('chai').expect;
-var cbConnManager = require('runrightfast-couchbase').couchbaseConnectionManager;
 var HawkAuthService = require('..').HawkAuthService;
+var ElasticSearchClient = require('runrightfast-elasticsearch').ElasticSearchClient;
+var ejs = new ElasticSearchClient({
+	host : 'localhost',
+	port : 9200
+}).ejs;
 
 describe('HawkAuthService', function() {
 	var hawkAuthService = null;
 
 	var idsToDelete = [];
 
-	before(function(done) {
-		var options = {
-			couchbase : {
-				"host" : [ "localhost:8091" ],
-				buckets : [ {
-					"bucket" : "default"
-				} ]
+	before(function() {
+		hawkAuthService = new HawkAuthService({
+			elastic : {
+				ejs : ejs
 			},
-			logLevel : 'DEBUG',
-			startCallback : function(result) {
-				console.log('before::startCallback');
-				console.log(result);
-
-				hawkAuthService = new HawkAuthService({
-					couchbaseConn : cbConnManager.getBucketConnection('default')
-				});
-
-				done();
-			},
-			connectionErrorListener : function(err) {
-				console.error('connectionErrorListener(): ' + err);
-				done(err);
-			}
-		};
-
-		cbConnManager.registerConnection(options);
+			logLevel : 'DEBUG'
+		});
 	});
 
-	after(function(done) {
-		hawkAuthService.deleteMultiCredentials(idsToDelete, function(error, result) {
-			console.log("after() : deleteMultiCredentials : error [%s], result [%s]", error, result);
-			cbConnManager.stop(function() {
-				cbConnManager.clear();
-				done();
-			});
+	after(function() {
+		idsToDelete.forEach(function(id) {
+			hawkAuthService.deleteCredentials(id);
 		});
+		idsToDelete = [];
 	});
 
 	it('can create new HawkCredentials that are persisted in the database', function(done) {
@@ -92,7 +74,7 @@ describe('HawkAuthService', function() {
 
 	it('can create multiple new HawkCredentials that are persisted in the database', function(done) {
 		var counter = 0;
-		for ( var i = 0; i < 10; i++) {
+		for (var i = 0; i < 10; i++) {
 			hawkAuthService.createCredentials(function(error, credentials) {
 				var ii = i;
 				try {

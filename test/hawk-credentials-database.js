@@ -16,49 +16,33 @@
 
 'use strict';
 var expect = require('chai').expect;
-var cbConnManager = require('runrightfast-couchbase').couchbaseConnectionManager;
 var HawkCredentialsDatabase = require('..').HawkCredentialsDatabase;
+
+var ElasticSearchClient = require('runrightfast-elasticsearch').ElasticSearchClient;
+var ejs = new ElasticSearchClient({
+	host : 'localhost',
+	port : 9200
+}).ejs;
 
 describe('HawkCredentialsDatabase', function() {
 	var hawkCredentialsDatabase = null;
 
 	var idsToDelete = [];
 
-	before(function(done) {
-
-		var options = {
-			couchbase : {
-				"host" : [ "localhost:8091" ],
-				buckets : [ {
-					"bucket" : "default"
-				} ]
+	before(function() {
+		hawkCredentialsDatabase = new HawkCredentialsDatabase({
+			elastic : {
+				ejs : ejs
 			},
-			logLevel : 'DEBUG',
-			startCallback : function(result) {
-				console.log('before::startCallback');
-				console.log(result);
-
-				hawkCredentialsDatabase = new HawkCredentialsDatabase({
-					couchbaseConn : cbConnManager.getBucketConnection('default')
-				});
-
-				done();
-			}
-		};
-
-		cbConnManager.registerConnection(options);
-
+			logLevel : 'DEBUG'
+		});
 	});
 
-	after(function(done) {
-		hawkCredentialsDatabase.deleteMultiCredentials(idsToDelete, function(error, result) {
-			console.log("after() : deleteMultiCredentials : error [%s], result [%s]", error, result);
-			console.log("deleted ids : %s", Object.keys(result));
-			cbConnManager.stop(function() {
-				cbConnManager.clear();
-				done();
-			});
+	after(function() {
+		idsToDelete.forEach(function(id) {
+			hawkCredentialsDatabase.deleteCredentials(id);
 		});
+		idsToDelete = [];
 	});
 
 	it('can create new HawkCredentials that are persisted in the database', function(done) {
@@ -91,7 +75,7 @@ describe('HawkCredentialsDatabase', function() {
 
 	it('can create multiple new HawkCredentials that are persisted in the database', function(done) {
 		var counter = 0;
-		for ( var i = 0; i < 10; i++) {
+		for (var i = 0; i < 10; i++) {
 			hawkCredentialsDatabase.createCredentials(function(error, credentials) {
 				var ii = i;
 				try {
@@ -149,6 +133,7 @@ describe('HawkCredentialsDatabase', function() {
 		hawkCredentialsDatabase.getCredentials("fsdfsdf", function(error, credentials) {
 			if (error) {
 				done(error);
+				return;
 			}
 
 			if (credentials) {
