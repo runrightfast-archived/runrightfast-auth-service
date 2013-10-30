@@ -22,7 +22,7 @@
 		"lodash":"2.2.x",
 		"hoek":"1.1.x",
 		"runrightfast-commons":"git://github.com/runrightfast/runrightfast-commons.git#0.0.16",
-		"runrightfast-elasticsearch":"git://github.com/runrightfast/runrightfast-elasticsearch.git#0.0.2",
+		"runrightfast-elasticsearch":"git://github.com/runrightfast/runrightfast-elasticsearch.git#0.0.3",
 		"rest":"1.0.x",
 		"log4js":"0.6.x",
 		"hawk":"1.1.x",
